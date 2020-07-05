@@ -1,0 +1,3 @@
+([('reverse_backdoor',
+   '/Users/technologyleon/playground/reverse_backdoor/dist/reverse_backdoor',
+   'EXECUTABLE')],)
